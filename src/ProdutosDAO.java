@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.plaf.RootPaneUI;
 
 
 public class ProdutosDAO {
@@ -64,6 +65,43 @@ public class ProdutosDAO {
         }
         
        return listagem;
+    }
+    
+    public List<ProdutosDTO> listarProdutosVendidos(){
+        String sql = "SELECT * FROM produtos WHERE status = 'vendido'";
+        
+        try (Connection conn = new conectaDAO().connectDB();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet resultset = pstmt.executeQuery()) {
+            
+            while (resultset.next()) {
+                ProdutosDTO produto = new ProdutosDTO();
+                produto.setId(resultset.getInt("id"));
+                produto.setNome(resultset.getString("nome"));
+                produto.setValor(resultset.getInt("valor"));
+                produto.setStatus(resultset.getString("status"));
+                listagem.add(produto);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(ProdutosDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+       return listagem;
+    }
+
+    void venderProduto(int id) {
+        String sql = "UPDATE produtos SET status = 'vendido' WHERE id = ?";
+        
+        try(Connection conn = new conectaDAO().connectDB();
+                PreparedStatement pstmt = conn.prepareStatement(sql)){
+            
+            pstmt.setInt(1, id);
+            pstmt.executeUpdate();
+            
+            JOptionPane.showMessageDialog(null, "Lista autalizada com sucesso!");
+        } catch (SQLException ex) {
+            Logger.getLogger(ProdutosDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
 
